@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { RxCrossCircled } from "react-icons/rx";
-import { FaHome } from "react-icons/fa";
+import { FaHome, FaMoneyBillWave } from "react-icons/fa";
 import { IoIosPeople } from "react-icons/io";
 import { BsDatabaseFillAdd } from "react-icons/bs";
+import { CiCircleList } from "react-icons/ci";
 
 const DashBoardNavBar = () => {
   const header = [
@@ -12,16 +13,34 @@ const DashBoardNavBar = () => {
       pathName: "/",
       icon: <FaHome />,
     },
+
+    {
+      name: "All Items",
+      pathName: "/allitems",
+      icon: <CiCircleList />,
+    },
+    {
+      name: "Bills",
+      pathName: "/bills",
+      icon: <FaMoneyBillWave />
+      ,
+    },
+
+
+
     {
       name: "All Customer",
-      pathName: "/allcoustomer",
+      pathName: "/allcustomer",
       icon: <IoIosPeople />,
     },
+
+
     {
       name: "Add Items",
       pathName: "/additems",
       icon: <BsDatabaseFillAdd />,
     },
+
   ];
 
   const [drawerOpen, setDrawerOpen] = useState(false);

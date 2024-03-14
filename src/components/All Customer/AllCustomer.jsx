@@ -1,12 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
 import UseAxiosPublic from "../../Hooks/UseAxiosPublic";
 import { CgSandClock } from "react-icons/cg";
+import toast, { Toaster } from "react-hot-toast";
+import { LuPrinter } from "react-icons/lu";
+import { useState } from "react";
+import Modal1 from "../Invoice/Invoice";
 
 const AllCustomer = () => {
   const axiosPublic = UseAxiosPublic();
-  
 
-  const { isPending, error, data } = useQuery({
+  const [selectedData, setSelectedData] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
+  const {
+    isPending,
+    error,
+    data: datas,
+    refetch,
+  } = useQuery({
     queryKey: ["data"],
     queryFn: async () => {
       const res = await axiosPublic.get(`/api/customer/get`);
@@ -14,16 +24,39 @@ const AllCustomer = () => {
     },
   });
 
+  const handleDelete = (_id) => {
+    axiosPublic.delete(`/api/customer/delete/${_id}`).then((res) => {
+      if (res.data.status === 200) {
+        toast.success(res.data.message);
+        refetch();
+      }
+    });
+  };
+
+  // const handleOnPrint = (_id) => {
+  //   <Invoice id={_id}></Invoice>;
+  // };
+
+
+
+  const handleRowClick = (data) => {
+    setSelectedData(data);
+    setOpenModal(true)
+  };
+
+
   if (isPending) return "Loading...";
 
   if (error) return "An error has occurred: " + error.message;
 
-
   return (
     <div>
-      <section className="container px-5  mx-auto">
+      <div>
+        <Toaster />
+      </div>
+      <section className="container">
         <div className="flex flex-col">
-          <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+          <div className="overflow-x-auto ">
             <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
               <div className="overflow-hidden border border-gray-200 dark:border-gray-700 md:rounded-lg">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -108,13 +141,15 @@ const AllCustomer = () => {
                         Total Price
                       </th>
                       <th scope="col" className="relative py-3.5 px-4">
-                        <span className="sr-only">Actions</span>
+                        <span className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                          Actions
+                        </span>
                       </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-900">
-                    {data?.map((data) => (
-                      <tr key={data._id}>
+                    {datas?.map((data) => (
+                      <tr  key={data._id}>
                         <td className="px-4 py-4 text-sm font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap">
                           <div className="inline-flex items-center gap-x-3">
                             {data?.invoiceId}
@@ -166,7 +201,8 @@ const AllCustomer = () => {
                                 {data?.name}
                               </h2>
                               <p className="text-xs font-normal text-gray-600 dark:text-gray-400">
-                                {data?.phoneNumber} <span className="ml-2">{data?.address}</span>
+                                {data?.phoneNumber}{" "}
+                                <span className="ml-2">{data?.address}</span>
                               </p>
                             </div>
                           </div>
@@ -186,16 +222,45 @@ const AllCustomer = () => {
                           {data?.totalPrice} TK
                         </td>
                         <td className="px-4 py-4 text-sm whitespace-nowrap">
-                          <div className="flex items-center gap-x-6">
-                            <button className="text-blue-500 transition-colors duration-200 hover:text-indigo-500 focus:outline-none">
-                              Download
+                          <div className="flex items-center gap-x-5">
+                            <button
+                              onClick={() => handleRowClick(data)}
+                              className="text-white btn btn-sm btn-circle bg-transparent border-none text-lg transition-colors duration-200 hover:text-blue-800 focus:outline-none"
+                            >
+                              <LuPrinter></LuPrinter>
                             </button>
+
+
+
+                            <div className="flex justify-center">
+                              <button onClick={() => handleDelete(data?._id)}>
+                                <svg
+                                  className="h-8 w-8 rounded-full p-1 text-white hover:bg-gray-100 hover:text-blue-800 duration-200"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
                           </div>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+
+
+<Modal1 setOpenModal={setOpenModal} openModal={openModal} data={selectedData} ></Modal1>
+
+
               </div>
             </div>
           </div>
