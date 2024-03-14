@@ -6,8 +6,25 @@ import { FaHome, FaMoneyBillWave } from "react-icons/fa";
 import { IoIosPeople } from "react-icons/io";
 import { BsDatabaseFillAdd } from "react-icons/bs";
 import { CiCircleList } from "react-icons/ci";
+import { useContext } from "react";
+import { AuthContext } from "../Login/Firebase/AuthProvider";
+
+
+
+
 
 const DashBoardSideBar = () => {
+  const { logOut } = useContext(AuthContext);
+  const hendleSignOut = () => {
+    logOut()
+      .then(() =>
+        console.log("logout done"))
+
+      .catch(error => console.log(error.massage))
+
+  }
+
+
   const header = [
     {
       name: "Home",
@@ -87,7 +104,7 @@ const DashBoardSideBar = () => {
         </div>
 
         <div className="  pt-4 flex flex-col  border-t">
-          <button className="px-4 py-3 flex items-center space-x-4 rounded-md text-white group">
+          <button onClick={hendleSignOut} className="px-4 py-3 flex items-center space-x-4 rounded-md text-white group">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6"

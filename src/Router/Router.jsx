@@ -6,6 +6,8 @@ import Error from "../Error/Error";
 import AllItems from "../components/All Items/AllItems";
 import Bills from "../components/Bills/Bills";
 import AllCustomer from "../components/All Customer/AllCustomer";
+import SignIn from "../components/Login/SignIn";
+import PrivateRoute from "../components/Login/PrivateRoute";
 
 const Router = createBrowserRouter([
   {
@@ -15,23 +17,27 @@ const Router = createBrowserRouter([
     children:[
         {
             path: "/",
-            element:<Home></Home>
+            element:<PrivateRoute><Home></Home></PrivateRoute>
         },
         {
             path: "/additems",
-            element:<AddAllItems></AddAllItems>
+            element:<PrivateRoute><AddAllItems></AddAllItems></PrivateRoute>
         },
         {
             path: "/allitems",
-            element:<AllItems></AllItems>
+            element:<PrivateRoute><AllItems></AllItems></PrivateRoute>
         },
         {
             path: "/bills",
-            element:<Bills></Bills>
+            element:<PrivateRoute><Bills></Bills></PrivateRoute>
         },
         {
             path: "/allcustomer",
-            element:<AllCustomer></AllCustomer>
+            element:<PrivateRoute><AllCustomer></AllCustomer></PrivateRoute>
+        },
+        {
+            path: "/SignIn",
+            element:<SignIn></SignIn>
         },
 
 

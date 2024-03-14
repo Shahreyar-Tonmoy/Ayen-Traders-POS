@@ -1,38 +1,37 @@
 /* eslint-disable react/prop-types */
 
+import toast, { Toaster } from "react-hot-toast";
 import UseAxiosPublic from "../../Hooks/UseAxiosPublic";
+import { useNavigate } from "react-router-dom";
 
 /* eslint-disable no-unused-vars */
 const ItemsCard = ({ data }) => {
   const { _id, name, photo, price, category } = data;
-const axiosPublic = UseAxiosPublic()
+  const axiosPublic = UseAxiosPublic();
 
-const  handleClick = (_id)=>{
+  const navigate = useNavigate();
 
-
+  const handleClick = (_id) => {
     const data = {
-        billingItems: _id
-    }
+      billingItems: _id,
+    };
 
-
-  
-axiosPublic.post("/api/billingitems/add",data)
-.then((res)=>{
-    console.log(res.data)
-})
-
-
-
-
-
-
-
-}
-
+    axiosPublic.post("/api/billingitems/add", data).then((res) => {
+      if (res.data.status === 200) {
+        toast.success(res.data.message);
+      }
+      if (res.data.status === 409) {
+        toast.error(res.data.message);
+      }
+    });
+  };
 
   return (
-    <div onClick={()=>handleClick(_id)}>
-      <article className="rounded-xl w-60 h-[330px] bg-white p-3 shadow-lg hover:shadow-xl hover:transform hover:scale-105 duration-300 ">
+    <div onClick={() => handleClick(_id)}>
+      <div>
+        <Toaster />
+      </div>
+      <article className="rounded-xl w-60 h-[330px] mx-auto bg-white p-3 shadow-lg hover:shadow-xl hover:transform hover:scale-105 duration-300 ">
         <a href="#">
           <div className="relative flex items-end overflow-hidden rounded-xl">
             <img src={photo} className="w-full h-40" />

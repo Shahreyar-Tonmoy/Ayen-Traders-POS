@@ -3,26 +3,27 @@ import UseAxiosPublic from "../../Hooks/UseAxiosPublic";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { RxCross2 } from "react-icons/rx";
+import toast, { Toaster } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const Bills = () => {
   const axiosPublic = UseAxiosPublic();
   const [openModal, setOpenModal] = useState(false);
   const [isDueChecked, setIsDueChecked] = useState(false);
   const { register, handleSubmit, required } = useForm();
+  const navigate = useNavigate()
 
   const [quantities, setQuantities] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalQuantity, setTotalQuantity] = useState(0);
 
-  const { isLoading, error, data,refetch } = useQuery({
+  const { isLoading, error, data, refetch } = useQuery({
     queryKey: ["data"],
     queryFn: () =>
       axiosPublic.get("/api/billingitems/get").then((res) => res.data),
   });
 
-  const itemsData = data
-
-
+  const itemsData = data;
 
   const handleQuantityChange = (index, value) => {
     const newQuantities = [...quantities];
@@ -32,7 +33,6 @@ const Bills = () => {
     if (data && data.length > index && data[index]?.billingItems) {
       // Check if data[index] and data[index].billingItems exist
       handleMakeInvoice(data, newQuantities);
-      
     }
   };
 
@@ -87,87 +87,81 @@ const Bills = () => {
   };
 
   const onSubmit = async (data) => {
+    const { name, address, phoneNumber, payAmount } = data;
 
-    const {name,address,phoneNumber,payAmount} = data
-
-    const dueAmount = parseInt(totalPrice) - parseInt(payAmount)
-
-
-
+    const dueAmount = parseInt(totalPrice) - parseInt(payAmount);
 
     const due = {
       name: name,
-      address:address,
-      phoneNumber:phoneNumber,
+      address: address,
+      phoneNumber: phoneNumber,
       totalPrice: parseInt(totalPrice),
-      totalQuantity:totalQuantity,
-      dueAmount:dueAmount || 0,
-      payAmount:parseInt(payAmount) || 0,
+      totalQuantity: totalQuantity,
+      dueAmount: dueAmount || 0,
+      payAmount: parseInt(payAmount) || 0,
       items: itemsData?.map((billingItem, idx) => ({
         itemsId: billingItem?.billingItems?._id,
         quantity: quantities[idx],
       })),
-      
-    }
-
-
-
+    };
 
     const Paid = {
       name: name,
-      address:address,
-      phoneNumber:phoneNumber,
+      address: address,
+      phoneNumber: phoneNumber,
       totalPrice: parseInt(totalPrice),
-      totalQuantity:totalQuantity,
+      totalQuantity: totalQuantity,
       dueAmount: 0,
-      payAmount:parseInt(totalPrice) || 0,
+      payAmount: parseInt(totalPrice) || 0,
       items: itemsData?.map((billingItem, idx) => ({
         itemsId: billingItem?.billingItems?._id,
-        
+
         quantity: quantities[idx],
       })),
-      
-    }
+    };
 
-
-
-
-
-
-
-
-    if(isDueChecked){
-      axiosPublic.post("/api/customer/add",due)
-      .then(()=>{
-        axiosPublic.get("/api/billingitems/delete")
-        .then((res)=>{
-          
-          if(res.data.status === 200){
-            refetch()
+    if (isDueChecked) {
+      axiosPublic.post("/api/customer/add", due).then(() => {
+        axiosPublic.get("/api/billingitems/delete").then((res) => {
+          if (res.data.status === 200) {
+            refetch();
+            navigate("/allcustomer")
           }
-        })
-      })
-    }
-
-    else{
-      axiosPublic.post("/api/customer/add",Paid)
-      .then(()=>{
-        axiosPublic.get("/api/billingitems/delete")
-        .then((res)=>{
-          
-          if(res.data.status === 200){
-            refetch()
+        });
+      });
+    } else {
+      axiosPublic.post("/api/customer/add", Paid).then(() => {
+        axiosPublic.get("/api/billingitems/delete").then((res) => {
+          if (res.data.status === 200) {
+            refetch();
+            navigate("/allcustomer")
           }
-        })
-      })
+        });
+      });
     }
-
-
   };
 
   const calculateTotal = (price, quantity) => {
     return (quantity * price).toFixed(2);
   };
+
+  const handleDelete= (_id)=>{
+
+    axiosPublic.delete(`/api/billingitems/delete/one/${_id}`)
+    .then((res)=>{
+      if(res.data.status===200){
+        toast.success(res.data.message);
+        refetch()
+      }
+      
+    })
+
+
+  }
+
+
+
+
 
   if (isLoading) {
     return <p>Loading...</p>;
@@ -179,6 +173,9 @@ const Bills = () => {
 
   return (
     <div>
+          <div>
+        <Toaster />
+      </div>
       <section className="px-4 text-gray-600 antialiased">
         <div className="flex flex-col justify-center">
           <div className="mx-auto w-full rounded-sm border border-gray-200 bg-white shadow-lg">
@@ -287,7 +284,7 @@ const Bills = () => {
                       </td>
                       <td className="p-2">
                         <div className="flex justify-center">
-                          <button>
+                          <button onClick={() => handleDelete(billingItem?._id)}>
                             <svg
                               className="h-8 w-8 rounded-full p-1 hover:bg-gray-100 hover:text-blue-600"
                               fill="none"
@@ -310,7 +307,7 @@ const Bills = () => {
                 </tbody>
               </table>
             </div>
-            <div className="flex justify-end space-x-4 border-t border-gray-100 px-5 py-4 text-2xl font-bold">
+            <div className="flex items-center justify-end space-x-4 border-t border-gray-100 px-5 py-4 text-xl font-bold">
               <div>Total</div>
               <div className="text-blue-600">
                 {data
@@ -322,12 +319,7 @@ const Bills = () => {
                   .toFixed(2)}{" "}
                 TK
               </div>
-              {/* <button
-                onClick={handleMakeInvoice}
-                className="bg-blue-500 text-white p-2 rounded-md"
-              >
-                Make Invoice
-              </button> */}
+
 
               <div>
                 <button
@@ -335,7 +327,7 @@ const Bills = () => {
                     setOpenModal(true);
                     handleMakeInvoice();
                   }}
-                  className="rounded-sm bg-sky-500 px-5 py-[6px] text-white"
+                  className="rounded-sm bg-sky-500 btn hover:bg-sky-500 text-base text-white"
                   id="_modal_NavigateUI"
                 >
                   Make Invoice
