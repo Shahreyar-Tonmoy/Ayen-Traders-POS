@@ -4,26 +4,19 @@ import { Link, NavLink } from "react-router-dom";
 
 import { FaHome, FaMoneyBillWave } from "react-icons/fa";
 import { IoIosPeople } from "react-icons/io";
-import { BsDatabaseFillAdd } from "react-icons/bs";
 import { CiCircleList } from "react-icons/ci";
 import { useContext } from "react";
 import { AuthContext } from "../Login/Firebase/AuthProvider";
-
-
-
-
+import Dropdown from "./Dropdown";
 
 const DashBoardSideBar = () => {
   const { logOut } = useContext(AuthContext);
   const hendleSignOut = () => {
     logOut()
-      .then(() =>
-        console.log("logout done"))
+      .then(() => console.log("logout done"))
 
-      .catch(error => console.log(error.massage))
-
-  }
-
+      .catch((error) => console.log(error.massage));
+  };
 
   const header = [
     {
@@ -40,11 +33,8 @@ const DashBoardSideBar = () => {
     {
       name: "Bills",
       pathName: "/bills",
-      icon: <FaMoneyBillWave />
-      ,
+      icon: <FaMoneyBillWave />,
     },
-
-
 
     {
       name: "All Customer",
@@ -52,12 +42,6 @@ const DashBoardSideBar = () => {
       icon: <IoIosPeople />,
     },
 
-
-    {
-      name: "Add Items",
-      pathName: "/additems",
-      icon: <BsDatabaseFillAdd />,
-    },
 
   ];
 
@@ -81,7 +65,7 @@ const DashBoardSideBar = () => {
           {/* navigation button section */}
 
           <ul className="space-y-2 tracking-wide mt-5">
-            {header.map((data,idx) => (
+            {header.map((data, idx) => (
               <li key={idx} className="mt-1 w-full">
                 <NavLink
                   to={data.pathName}
@@ -90,7 +74,7 @@ const DashBoardSideBar = () => {
                       ? "pending"
                       : isActive
                       ? "relative px-4 py-2 flex items-center space-x-4 rounded-xl text-white text-sm  bg-[#1677FF]"
-                      : "relative px-4 py-3 flex text-sm items-center space-x-4 "
+                      : "relative px-4 py-2 flex text-sm rounded-xl hover:bg-[#1677FF] items-center space-x-4 "
                   }
                 >
                   <span className="flex items-center pl-5 justify-start gap-3  ">
@@ -100,11 +84,18 @@ const DashBoardSideBar = () => {
                 </NavLink>
               </li>
             ))}
+
+            <Dropdown></Dropdown>
+
+
           </ul>
         </div>
 
         <div className="  pt-4 flex flex-col  border-t">
-          <button onClick={hendleSignOut} className="px-4 py-3 flex items-center space-x-4 rounded-md text-white group">
+          <button
+            onClick={hendleSignOut}
+            className="px-4 py-3 flex items-center space-x-4 rounded-md text-white group"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6"

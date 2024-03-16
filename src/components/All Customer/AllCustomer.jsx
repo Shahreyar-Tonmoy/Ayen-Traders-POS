@@ -4,12 +4,21 @@ import { CgSandClock } from "react-icons/cg";
 import toast, { Toaster } from "react-hot-toast";
 import { LuPrinter } from "react-icons/lu";
 import { useState } from "react";
-import Modal1 from "../Invoice/Invoice";
+import Invoice from "../Invoice/Invoice";
+import { FaAmazonPay } from "react-icons/fa";
+import DuePay from "./DuePay";
+import Swal from "sweetalert2";
 
 const AllCustomer = () => {
   const axiosPublic = UseAxiosPublic();
+  const [payDueModal, setPayDueModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
 
   const [selectedData, setSelectedData] = useState(null);
+
+
+
   const [openModal, setOpenModal] = useState(false);
   const {
     isPending,
@@ -17,7 +26,7 @@ const AllCustomer = () => {
     data: datas,
     refetch,
   } = useQuery({
-    queryKey: ["data"],
+    queryKey: ["datas"],
     queryFn: async () => {
       const res = await axiosPublic.get(`/api/customer/get`);
       return res.data;
@@ -25,10 +34,22 @@ const AllCustomer = () => {
   });
 
   const handleDelete = (_id) => {
-    axiosPublic.delete(`/api/customer/delete/${_id}`).then((res) => {
-      if (res.data.status === 200) {
-        toast.success(res.data.message);
-        refetch();
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosPublic.delete(`/api/customer/delete/${_id}`).then((res) => {
+          if (res.data.status === 200) {
+            toast.success(res.data.message);
+            refetch();
+          }
+        });
       }
     });
   };
@@ -37,12 +58,37 @@ const AllCustomer = () => {
   //   <Invoice id={_id}></Invoice>;
   // };
 
-
-
   const handleRowClick = (data) => {
     setSelectedData(data);
-    setOpenModal(true)
+    setOpenModal(true);
   };
+  const handleClick = (data) => {
+    setSelectedData(data);
+    setPayDueModal(true);
+  };
+
+  const handleSearch = async (event) => {
+    const searchTerm = event.target.value;
+    setSearchTerm(searchTerm);
+
+    try {
+      const response = await fetch(
+        `https://ayen-traders-server.vercel.app/api/search?search=${encodeURIComponent(
+          searchTerm
+        )}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+      const data = await response.json();
+      setSearchResults(data);
+    } catch (error) {
+      console.error("Error searching customers:", error.message);
+    }
+  };
+
+
+
 
 
   if (isPending) return "Loading...";
@@ -54,6 +100,36 @@ const AllCustomer = () => {
       <div>
         <Toaster />
       </div>
+
+      <div className="max-w-md mx-auto mt-3 ">
+        <div className="relative border flex items-center w-full h-12 rounded-lg focus-within:shadow-xl  bg-slate-200 overflow-hidden">
+          <div className="grid text-black  place-items-center h-full w-12 ">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
+          <input
+            value={searchTerm}
+            onChange={handleSearch}
+            className="peer h-full bg-slate-200  w-full outline-none text-sm text-black placeholder:text-black pr-2"
+            type="text"
+            id="search"
+            placeholder="Search something.."
+          />
+        </div>
+      </div>
+
       <section className="container">
         <div className="flex flex-col">
           <div className="overflow-x-auto ">
@@ -147,9 +223,9 @@ const AllCustomer = () => {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-900">
-                    {datas?.map((data) => (
-                      <tr  key={data._id}>
+                  <tbody className="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-[#001529]">
+                    {(searchTerm ? searchResults : datas)?.map((data) => (
+                      <tr key={data._id}>
                         <td className="px-4 py-4 text-sm font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap">
                           <div className="inline-flex items-center gap-x-3">
                             {data?.invoiceId}
@@ -222,15 +298,26 @@ const AllCustomer = () => {
                           {data?.totalPrice} TK
                         </td>
                         <td className="px-4 py-4 text-sm whitespace-nowrap">
-                          <div className="flex items-center gap-x-5">
-                            <button
-                              onClick={() => handleRowClick(data)}
-                              className="text-white btn btn-sm btn-circle bg-transparent border-none text-lg transition-colors duration-200 hover:text-blue-800 focus:outline-none"
-                            >
-                              <LuPrinter></LuPrinter>
-                            </button>
+                          <div className="flex items-center gap-x-2">
+                            <div className="flex-1">
+                              {data?.dueAmount > 0 && (
+                                <button
+                                  onClick={() => handleClick(data)}
+                                  className="text-white btn btn-sm btn-circle bg-transparent border-none text-2xl transition-colors duration-200 hover:text-blue-800 focus:outline-none"
+                                >
+                                  <FaAmazonPay></FaAmazonPay>
+                                </button>
+                              )}
+                            </div>
 
-
+                            <div className="flex-1">
+                              <button
+                                onClick={() => handleRowClick(data)}
+                                className="text-white btn btn-sm btn-circle bg-transparent border-none text-lg transition-colors duration-200 hover:text-blue-800 focus:outline-none"
+                              >
+                                <LuPrinter></LuPrinter>
+                              </button>
+                            </div>
 
                             <div className="flex justify-center">
                               <button onClick={() => handleDelete(data?._id)}>
@@ -257,10 +344,18 @@ const AllCustomer = () => {
                   </tbody>
                 </table>
 
+                <Invoice
+                  setOpenModal={setOpenModal}
+                  openModal={openModal}
+                  data={selectedData}
+                ></Invoice>
 
-<Modal1 setOpenModal={setOpenModal} openModal={openModal} data={selectedData} ></Modal1>
-
-
+                <DuePay
+                  payDueModal={payDueModal}
+                  refetch={refetch}
+                  data={selectedData}
+                  setPayDueModal={setPayDueModal}
+                ></DuePay>
               </div>
             </div>
           </div>

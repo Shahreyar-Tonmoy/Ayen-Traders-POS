@@ -87,7 +87,7 @@ const SignIn = () => {
 
     return (
        <div className="lg:flex justify-around items-center  mx-auto lg:px-36">
-        <img className="h-[600px] pr-52 hidden lg:blockgit" src={picture} alt="" />
+        <img className="h-[600px] pr-52 hidden lg:block" src={picture} alt="" />
          <div>
             <div className="mt-10">
             <div className="card w-96 glass flex-shrink-0  max-w-sm mx-auto lg:mx-0  ">

@@ -3,11 +3,24 @@ import { RxCross2 } from "react-icons/rx";
 import { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 
-export default function Modal1({ setOpenModal, openModal, data }) {
+export default function Invoice({ setOpenModal, openModal, data }) {
+
+  
+
   const componentRef = useRef();
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
+    onAfterPrint: () => {
+      // Close the modal after printing
+      setOpenModal(false);
+    },
   });
+
+
+
+
+
+
 
   const today = new Date();
   const options = {
@@ -30,7 +43,7 @@ export default function Modal1({ setOpenModal, openModal, data }) {
       >
         <div
           onClick={(e_) => e_.stopPropagation()}
-          className={` absolute lg:w-1/3  rounded-sm   p-6 mt-32 lg:mt-0 drop-shadow-lg  dark:text-white ${
+          className={` absolute lg:w-1/3  rounded-sm   p-6 mt-32 lg:mt-20 drop-shadow-lg  dark:text-white ${
             openModal
               ? "scale-1 opacity-1 duration-300"
               : "scale-0 opacity-0 duration-150"
@@ -40,7 +53,7 @@ export default function Modal1({ setOpenModal, openModal, data }) {
             {" "}
             <button
               onClick={() => setOpenModal(false)}
-              className="text-red btn btn-sm btn-circle b bg-transparent hover:bg-red-500 text-xl transition-colors duration-200 hover:text-white border-red-500 focus:outline-none"
+              className="text-red btn btn-sm text-red-500 hover:border-none btn-circle b bg-transparent hover:bg-red-500 text-xl transition-colors duration-200 hover:text-white border-red-500 focus:outline-none"
             >
               <RxCross2></RxCross2>
             </button>
@@ -60,7 +73,9 @@ export default function Modal1({ setOpenModal, openModal, data }) {
                 <h2 className="text-lg font-bold text-center ">Ayen Traders</h2>
                 <h2 className=" text-center ">Md.Sanower Hossain</h2>
                 <h2 className="text-center ">01717424159</h2>
-                <p className="text-center ">Punot, Kalai, Joupurhat 5930</p>
+                <p className="text-center ">
+                  Punot Bazar, Kalai, Joupurhat 5930
+                </p>
               </div>
               <div className="mt-5">
                 <h2 className="text-lg text-start font-bold ">
@@ -73,9 +88,17 @@ export default function Modal1({ setOpenModal, openModal, data }) {
               </div>
             </div>
 
-            <div className="flex justify-between mt-6 gap-6 text-[11px]">
+            <div className="flex justify-between mt-6 gap-6 text-[13px]">
               <p className="text-sm font-semibold">No : {data?.invoiceId}</p>
-              <p className="text-center">{formattedDate}</p>
+              <p className="text-center">
+                {" "}
+                {data?.createdAt &&
+                  new Date(data.createdAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+              </p>
             </div>
 
             <table className="w-full border-t mt-2 text-sm">
@@ -115,6 +138,7 @@ export default function Modal1({ setOpenModal, openModal, data }) {
             </div>
             <div className="mt-5">
               <p>Thank you for your purchase!</p>
+              <p className="text-end text-[10px] mt-5">Print at {formattedDate}</p>
             </div>
           </div>
 

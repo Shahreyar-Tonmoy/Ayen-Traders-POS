@@ -8,6 +8,7 @@ import Bills from "../components/Bills/Bills";
 import AllCustomer from "../components/All Customer/AllCustomer";
 import SignIn from "../components/Login/SignIn";
 import PrivateRoute from "../components/Login/PrivateRoute";
+import AllProduct from "../components/All Product/AllProduct";
 
 const Router = createBrowserRouter([
   {
@@ -38,6 +39,10 @@ const Router = createBrowserRouter([
         {
             path: "/SignIn",
             element:<SignIn></SignIn>
+        },
+        {
+            path: "/allproduct",
+            element:<AllProduct></AllProduct>
         },
 
 

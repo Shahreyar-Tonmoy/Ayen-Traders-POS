@@ -31,10 +31,10 @@ const ItemsCard = ({ data }) => {
       <div>
         <Toaster />
       </div>
-      <article className="rounded-xl w-60 h-[330px] mx-auto bg-white p-3 shadow-lg hover:shadow-xl hover:transform hover:scale-105 duration-300 ">
+      <article className="rounded-xl w-40 h-[310px] mx-auto bg-white p-3 shadow-lg hover:shadow-xl hover:transform hover:scale-105 duration-300 ">
         <a href="#">
           <div className="relative flex items-end overflow-hidden rounded-xl">
-            <img src={photo} className="w-full h-40" />
+            <img src={photo} className="w-full h-32" />
           </div>
           <div className="mt-1 p-2">
             <h2 className="text-slate-700">{name}</h2>
